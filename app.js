@@ -760,6 +760,8 @@ const placeOrderFunction = () => {
                 
             })
         }
+
+
         const allAddToCartBtn = document.querySelectorAll(`[addToCartBtn]`);
         allAddToCartBtn.forEach(seenAddToCartBtn => {
             
