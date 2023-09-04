@@ -242,13 +242,117 @@ const products = [
 ];
 
 const categories = [
-    `women's clothing` , 'jewelry' , `men's clothing` , 'electronics'
+    `all`,`women's clothing` , 'jewelry' , `men's clothing` , 'electronics'
 ]
-
 
 const productIdInCart = [];
 
-categories.unshift('all')
+
+const productsRender = (productsToRender) => {
+    productCardContainer.innerHTML = null;
+    productsToRender.forEach(product => {  
+       productCardContainer.append(generateProductCard(product))
+    });
+   
+}
+
+
+// generating category buttons
+const categoriesRender = (categories) =>{
+    categories.forEach(category => {
+
+        btnWrapper.append(creatCategoriesBtn(category));
+        
+    })
+    btnWrapper.children[0].classList.add('active');
+}
+
+
+const searchErrorHandler = () => {
+    if(document.querySelector('.productCardContainer').children.length === 0 ){
+
+        Swal.fire({
+            title: 'No such item found?',
+            text: "Sorry we can't find the item that match the search word",
+            icon: 'error',
+            showCancelButton: false,
+            confirmButtonColor: '#212529',
+            cancelButtonColor: '#dee2e6',
+            confirmButtonText: 'Okay'
+            })
+          
+        document.querySelector('.productCardContainer').innerHTML = `
+            <h1 class = "display-5 text-center fw-bold">No Search Result Found!</h1>
+        `
+    }
+}
+
+const searchProduct = (keyWord) => {
+
+    // case sensitive solution from chat gpt :D
+    const regexPattern = new RegExp(keyWord, 'i');
+    productsRender(products.filter(product =>{
+
+        return regexPattern.test(product.title) || regexPattern.test(product.description); 
+    }
+    ))
+}
+
+const searchBtnEle = document.querySelector('#search-btn');
+const searchContainerParent = document.querySelector('.search-container');
+searchBtnEle.onclick = () =>{
+
+    const searchContainer = document.createElement('div');
+    searchContainer.className = "search-container animate__animated";
+    searchContainer.innerHTML = `
+    <div  class=" p-2 d-flex justify-content-between align-items-center bg-dark" >
+        <span class="d-flex justify-content-between align-items-center" style="width: 10rem;">
+            <input search-input type="text">
+            <button cancel-search class=" ms-2 btn bg-dark text-white">
+                <i class="bi bi-x-lg fw-bold text-white"></i>
+            </button>
+        </span>
+        <button search-btn class="btn bg-dark-subtle fw-bold">Search</button>
+    </div>
+    `
+
+    // prevent from rendering multiple search box
+    // if the parent got no children then the search box will be generated
+    if(searchContainerParent.children.length === 0){
+
+        document.querySelector('.search-container').append(searchContainer);
+        searchContainer.classList.add('animate__fadeInDown')
+        searchBtnEle.style.pointerEvent = 'none';
+    }else{
+        // else we will just ignore
+        console.log(`searchContainerParent.children.length:`,(searchContainerParent.children.length));
+        return
+    }
+
+    const searchInputEle = document.querySelector('[search-input]');
+    const searchBtn = document.querySelector('[search-btn]');
+    searchBtn.onclick = () =>{
+        searchProduct(searchInputEle.value);
+        searchContainer.remove();
+        searchErrorHandler()
+    }
+
+    const cancelSearch = document.querySelector('[cancel-search]');
+    cancelSearch.onclick = () => {
+        
+        searchContainer.classList.remove('animate__fadeInDown')
+        searchContainer.classList.add('animate__fadeOutUp')
+
+        searchContainer.addEventListener('animationend',() => {
+
+            searchContainer.remove();
+        })
+        
+        // searchProduct(searchInputEle.value);
+
+    }
+}
+
 
 
 const btnWrapper = document.querySelector('[btnWrapper]');
@@ -305,9 +409,10 @@ const itemCartsContainer = document.querySelector('[item-container]');
 const generateProductCard = (product) => {
     const newDiv = document.createElement('div');
     newDiv.className  = 'productsContainer col-12 col-md-6 col-lg-4';
+    newDiv.setAttribute('product-id',`${product.id}`)
     const newCard = `
                 <div  class="productImgaeContainer" >
-                    <img src="${product.image}" alt="photo">
+                    <img src="${product.image}" alt="photo" product-img>
                 </div>
                 <div class="productInfo border">
                     <h3 class="product-name ">${product.title}</h3>
@@ -327,8 +432,10 @@ const generateProductCard = (product) => {
     const addToCardBtnEle = newDiv.querySelector('[addToCartBtn]');
     addToCardBtnEle.setAttribute('add-to-cart-btn-id',product.id);
     // console.log(addToCardBtnEle);
-    if(productIdInCart.includes(product.id)){
 
+    // check if the item already in the cart 
+    if(productIdInCart.includes(product.id)){
+        // if it is already in cart set the button to active state
         addToCardBtnEle.classList.add('active');
         addToCardBtnEle.innerText = 'Added';
 
@@ -347,12 +454,56 @@ const generateProductCard = (product) => {
     
     }
 
-
     return newDiv;
 }
 
 // add to cart fucntion
 const addToCart = (productId) => {
+
+    const cartBtnEle = document.querySelector('#cart-btn');
+    // current product card
+    const currentProductCard = document.querySelector(`[product-id = '${productId}']`);
+    const currentProductImgCard = currentProductCard.querySelector('[product-img]');
+    // creat new img with Imgae constructor
+    const tempImg = new Image();
+    tempImg.src = currentProductImgCard.src; //the same src with the img we want to clone
+    tempImg.style.transition = '500ms ease-in-out'
+    // using objext assign to add bunch of css line to an element
+    Object.assign(tempImg.style, {
+        position: 'fixed',
+        top: `${currentProductImgCard.getBoundingClientRect().top +'px'}`,
+        left : `${currentProductImgCard.getBoundingClientRect().left +'px'}`,
+        height : `${currentProductImgCard.getBoundingClientRect().height + 'px'}`,
+        scale: '0.6',
+        zIndex : '2',
+    });
+
+    // add the temp-img to the dom
+    currentProductCard.querySelector('.productImgaeContainer').prepend(tempImg);
+    const cartIcon = document.querySelector('#cart-icon');
+
+    setTimeout(() => {
+        
+        Object.assign(tempImg.style, {
+            position: 'fixed',
+            left: `${cartIcon.getBoundingClientRect().left + 'px'}`,
+            top : `${cartIcon.getBoundingClientRect().top + 'px'}`,
+            height : `${cartIcon.getBoundingClientRect().height + 'px'}`,
+            zIndex : '1',
+            rotate : '720deg',
+        });
+     
+    }, 100);
+
+    tempImg.addEventListener('transitionend',()=>{
+        cartBtnEle.classList.add('animate__tada');
+        tempImg.remove();
+    })
+    cartBtnEle.addEventListener('animationend',()=>{
+        cartBtnEle.classList.remove('animate__tada');
+
+    })
+
     const currentAddToCartBtn = document.querySelector(`[add-to-cart-btn-id = '${productId}']`);
     currentAddToCartBtn.classList.add('active')
     currentAddToCartBtn.innerText = 'Added'
@@ -369,8 +520,6 @@ const addToCart = (productId) => {
       })
 };
 
-
-
 // add to cart toast
 const Toast = Swal.mixin({
     toast: true,
@@ -386,48 +535,90 @@ const Toast = Swal.mixin({
   
   
 
+// delete item from cart
+const deleteItemFromCart = (id) => {
+    const currentProductInCartToDelete = document.querySelector(`[item-in-cart-id = '${id}']`)
+    const currentAddToCartBtn = productCardContainer.querySelector(`[add-to-cart-btn-id = '${id}']`)
+ 
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You want to delete this from cart?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#212529',
+        cancelButtonColor: '#dee2e6',
+        confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+        if (result.isConfirmed) {
+    
+            Toast.fire({
+                icon: 'success',
+                title: 'Item remove has been remove from cart.'
+              })
+            // the add-to-cart will remain the same whenever re-render with category
+            const index = productIdInCart.indexOf(id);
+            if (index > -1) { // only splice array when item is found
+                productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
+            }
+            
+            currentProductInCartToDelete.classList.add('animate__zoomOutRight')
+            // currentProductInCartToDelete.classList.add('animate__hinge')
+            currentProductInCartToDelete.addEventListener('animationend',()=>{
+                currentProductInCartToDelete.remove();
+                if(!currentAddToCartBtn){
+                    
+                    /*
+                    this could happen when user is in the specific category
+                    and trigger this function it will not able to find 
+                    the button with the ID we gave above so we will just return
+                    === we don't need to worry because when we generate the product
+                    cards ,we have a fucntion to check whether the item is in the cart
+                    if it is the btn will remain active
+                    */
+
+                    getTotalCost();
+                    calculateBadgeCount();   
+                    // console.log('not found in the container');
+                    return;
+                }else{
+
+                    currentAddToCartBtn.classList.remove('active');
+                    currentAddToCartBtn.innerText = 'Add to Cart';
+                    getTotalCost();
+                    calculateBadgeCount();     
+                }
+                
+            })
+            getTotalCost();
+                     
+        }
+        })
+    }
+
+
 // calcute badge count
 const badgeEle = document.querySelector('[badge]');
 const badgeInnerCartEle = document.querySelector("[badgeCountInnerCart]");
 
 const calculateBadgeCount = () => {
-    const itemCountInCart = [...itemCartsContainer.children];
-    badgeInnerCartEle.innerText = itemCountInCart.length;
-    badgeEle.innerText = itemCountInCart.length;
+    const itemCountInCart = itemCartsContainer.children.length;
+    badgeInnerCartEle.innerText = itemCountInCart;
+    badgeEle.innerText = itemCountInCart;
 }
 
-const productsRender = (productsToRender) => {
-
-    productsToRender.forEach(product => {
-        
-       productCardContainer.append(generateProductCard(product))
-    });
-   
-}
-
-
-// generating category buttons
-const categoriesRender = (categories) =>{
-    categories.forEach(category => {
-
-        btnWrapper.append(creatCategoriesBtn(category));
-        
-    })
-    btnWrapper.children[0].classList.add('active');
-}
 
 const renderItemToCart = (id) => {
 
     const currentProduct = products.find( product => product.id === id )
         const cartItemContainer = document.createElement('div');
-        cartItemContainer.className = 'item-in-cart pb-2 mt-2';
+        cartItemContainer.className = 'item-in-cart pb-2 mt-2 animate__animated ';
         cartItemContainer.setAttribute("item-in-cart-id",id)
         cartItemContainer.innerHTML = `
         <span class="px-2" >
             <img class="item-in-cart-img" src="${currentProduct.image}" alt="">
         </span>
 
-        <div class="border py-3 px-2">
+        <div class="border py-3 px-2 bg-white">
             <span class="  d-flex justify-content-between align-items-center">
 
                 <p class="fw-bold m-0 pt-3 text-truncate">${currentProduct.title}</p>
@@ -493,47 +684,6 @@ const renderItemToCart = (id) => {
 
 };
 
-// delete item from cart
-const deleteItemFromCart = (id) => {
-    const currentProductInCartToDelete = document.querySelector(`[item-in-cart-id = '${id}']`)
-    const currentAddToCartBtn = document.querySelector(`[add-to-cart-btn-id = '${id}']`)
- 
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "You want to delete this from cart?",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#212529',
-        cancelButtonColor: '#dee2e6',
-        confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-        if (result.isConfirmed) {
-            Swal.fire(
-            'Deleted!',
-            'Item has been deleted.',
-            'success'
-            )
-    
-            // the add-to-cart will remain the same whenever re-render with category
-            const index = productIdInCart.indexOf(id);
-            if (index > -1) { // only splice array when item is found
-                productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
-            }
-    
-            // remove the current item from cart
-            currentProductInCartToDelete.remove();
-            currentAddToCartBtn.classList.remove('active');
-            currentAddToCartBtn.innerText = 'Add to Cart';
-            // return the add to cart btn to normal state 
-            // so that the use can buy again 
-           
-            // calculate the total cost again
-            getTotalCost();
-            calculateBadgeCount();               
-        }
-        })
-    }
-
 
 // getting total cost in cart
 const getTotalCost = () =>{
@@ -546,7 +696,7 @@ const getTotalCost = () =>{
     taxAmount.innerText = ((allCost / 100) * 5).toFixed();
 
     const totalBalance = document.querySelector('[total-balance]');
-    totalBalance.innerText = allCost + Number(taxAmount.innerText);
+    totalBalance.innerText = (allCost + Number(taxAmount.innerText)).toFixed();
 
 }
 
@@ -561,7 +711,8 @@ const placeOrderFunction = () => {
     const checkOut = [];
     const allItemIncart = document.querySelectorAll('.item-in-cart');
     const myOrder = {};
-    
+    const itemContainerInCart = document.querySelector('[item-container]');
+
     Swal.fire({
         title: 'Are you sure you want to check out?',
         text: "Please confrim to place order",
@@ -601,24 +752,20 @@ const placeOrderFunction = () => {
                 const index = productIdInCart.indexOf(Number(item.productId));
                     
                 if (index > -1) { // only splice array when item is found
-                productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
+                    productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
+                }
+                const allAddToCartBtn = document.querySelectorAll(`[addToCartBtn]`);
+                allAddToCartBtn.forEach(seenAddToCartBtn => {
+                    
+                    seenAddToCartBtn.classList.remove('active');
+                    seenAddToCartBtn.innerText = 'Add to Cart';
 
-                // remove the current item from cart
-                const currentProductInCartToDelete = document.querySelector(`[item-in-cart-id = '${Number(item.productId)}']`)
-                const currentAddToCartBtn = document.querySelector(`[add-to-cart-btn-id = '${Number(item.productId)}']`)
-
-                currentProductInCartToDelete.remove();
-                currentAddToCartBtn.classList.remove('active');
-                currentAddToCartBtn.innerText = 'Add to Cart';
-                // return the add to cart btn to normal state 
-                // so that the use can buy again 
-            
-                // calculate the total cost again
+                })
+             
                 getTotalCost();
                 calculateBadgeCount();   
-                
+                itemContainerInCart.innerHTML =null;
                 bsOffcanvas.hide();
-            }
             })
         }
     })    
@@ -628,6 +775,8 @@ placeOrderBtnEle.onclick = () => {
     const itemContainerInCart = document.querySelector('[item-container]');
     if(itemContainerInCart.querySelector('.item-in-cart')){
         placeOrderFunction()
+        // remove the current item from cart
+       
     }else{
         Swal.fire({
             icon: 'error',

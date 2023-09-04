@@ -1,8 +1,6 @@
-// @import url(../node_modules/bootstrap/dist/css/bootstrap.min.css);
+
 @import url(../node_modules/bootstrap-icons/font/bootstrap-icons.min.css);
-@import url(../node_modules/bootstrap/dist/js/bootstrap.min.js);
-
-
+@import url(../node_modules/animate.css/animate.min.css);
 
 // sweet alert
 // pop up box
@@ -60,6 +58,28 @@ $--bs-btn-active-color: #071e33;
   display: none;
 }
 
+.search-container{
+  // width: 10rem;
+  margin-top: 2rem; 
+  margin-right: 5rem; 
+  width: 22rem;
+  transition: all 300ms;
+  // animation: fadeIn 300ms ease-in-out;
+}
+
+[search-icon]{
+  pointer-events: none;
+}
+
+[search-input]{
+  border: none; 
+  background-color: #9f9fa091;
+  color: white; 
+  padding: 7px 10px;
+}
+[search-input]:focus{
+  outline: none;
+}
 [scrollToTop]:hover{
   background-color: rgb(153, 153, 153);
 }
@@ -133,11 +153,6 @@ $--bs-btn-active-color: #071e33;
     pointer-events: none;
 }
 
-// .categoryBtn:hover
-// {
-//   background-color: black;
-//   color: white;
-// }
 
 .categoryBtn{
     background-color: white !important;
