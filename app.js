@@ -446,16 +446,33 @@ const generateProductCard = (product) => {
         if(addToCardBtnEle.classList.contains("active")){
             // console.log("already added");
             deleteItemFromCart(product.id);
+            getTotalCost();
 
         }else{
             //add to cart button state will change to 
             addToCart(product.id);
+            getTotalCost();
         }
     
     }
 
     return newDiv;
 }
+
+// getting total cost in cart
+const getTotalCost = () =>{
+    const totalCost = [...document.querySelectorAll('.item-cost-in-cart')];
+    const allCost = totalCost.reduce((pv,cv) => pv + parseFloat(cv.innerHTML),0);
+    const grandTotalCost = document.querySelector('[total-cost]');
+    grandTotalCost.innerText = (allCost.toFixed());
+    // console.log(allCost);
+    const taxAmount = document.querySelector('[tax]');
+    taxAmount.innerHTML = ((allCost / 100) * 5).toFixed();
+    const totalBalance = document.querySelector('[total-balance]');
+    totalBalance.innerText = (allCost + Number(taxAmount.innerHTML)).toFixed();
+
+}
+
 
 // add to cart fucntion
 const addToCart = (productId) => {
@@ -511,6 +528,7 @@ const addToCart = (productId) => {
 
     productIdInCart.push(productId);
     itemCartsContainer.append(renderItemToCart(productId));
+    console.log('gettotalcost not wrokdign');
     getTotalCost();
     calculateBadgeCount();
 
@@ -685,21 +703,6 @@ const renderItemToCart = (id) => {
 };
 
 
-// getting total cost in cart
-const getTotalCost = () =>{
-    const totalCost = [...document.querySelectorAll('.item-cost-in-cart')];
-    const allCost = totalCost.reduce((pv,cv) => pv + parseFloat(cv.innerHTML),0);
-    const grandTotalCost = document.querySelector('[total-cost]');
-    grandTotalCost.innerText = (allCost.toFixed());
-    // console.log(allCost);
-    const taxAmount = document.querySelector('[tax]');
-    taxAmount.innerText = ((allCost / 100) * 5).toFixed();
-
-    const totalBalance = document.querySelector('[total-balance]');
-    totalBalance.innerText = (allCost + Number(taxAmount.innerText)).toFixed();
-
-}
-
 // place order btn related stuffs
 
 const placeOrderBtnEle = document.querySelector('[place-order]');
@@ -754,20 +757,23 @@ const placeOrderFunction = () => {
                 if (index > -1) { // only splice array when item is found
                     productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
                 }
-                const allAddToCartBtn = document.querySelectorAll(`[addToCartBtn]`);
-                allAddToCartBtn.forEach(seenAddToCartBtn => {
-                    
-                    seenAddToCartBtn.classList.remove('active');
-                    seenAddToCartBtn.innerText = 'Add to Cart';
-
-                })
-             
-                getTotalCost();
-                calculateBadgeCount();   
-                itemContainerInCart.innerHTML =null;
-                bsOffcanvas.hide();
+                
             })
         }
+        const allAddToCartBtn = document.querySelectorAll(`[addToCartBtn]`);
+        allAddToCartBtn.forEach(seenAddToCartBtn => {
+            
+            seenAddToCartBtn.classList.remove('active');
+            seenAddToCartBtn.innerText = 'Add to Cart';
+
+        })
+     
+          
+        itemContainerInCart.innerHTML =null;
+        getTotalCost();
+        calculateBadgeCount(); 
+        bsOffcanvas.hide();
+
     })    
 }
 
