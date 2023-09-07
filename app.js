@@ -303,7 +303,8 @@ const searchContainerParent = document.querySelector('.search-container');
 searchBtnEle.onclick = () =>{
 
     const searchContainer = document.createElement('div');
-    searchContainer.className = "search-container animate__animated";
+    searchContainer.className = "search-container animate__animated ms-auto";
+    searchContainer.style.width = '22rem';
     searchContainer.innerHTML = `
     <div  class=" p-2 d-flex justify-content-between align-items-center bg-dark" >
         <span class="d-flex justify-content-between align-items-center" style="width: 10rem;">
@@ -528,7 +529,6 @@ const addToCart = (productId) => {
 
     productIdInCart.push(productId);
     itemCartsContainer.append(renderItemToCart(productId));
-    console.log('gettotalcost not wrokdign');
     getTotalCost();
     calculateBadgeCount();
 
@@ -752,15 +752,13 @@ const placeOrderFunction = () => {
             // to remove active state of  add to cart btn 
             myOrder.item.forEach(item => {
                 // console.log(item.productId);
-                const index = productIdInCart.indexOf(Number(item.productId));
-                    
+                const index = productIdInCart.indexOf(Number(item.productId));  
                 if (index > -1) { // only splice array when item is found
                     productIdInCart.splice(index, 1); // 2nd parameter means remove one item only
-                }
-                
+                }    
             })
+            
         }
-
 
         const allAddToCartBtn = document.querySelectorAll(`[addToCartBtn]`);
         allAddToCartBtn.forEach(seenAddToCartBtn => {

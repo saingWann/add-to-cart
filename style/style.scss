@@ -1,7 +1,10 @@
 
-@import url(../node_modules/bootstrap-icons/font/bootstrap-icons.min.css);
-@import url(../node_modules/animate.css/animate.min.css);
+// @import url(../node_modules/bootstrap-icons/font/bootstrap-icons.min.css);
+// @import url(../node_modules/animate.css/animate.min.css);
 
+@import "../node_modules/bootstrap-icons/font/bootstrap-icons.min.css";
+@import "../node_modules/animate.css/animate.min.css";
+@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 // sweet alert
 // pop up box
 $swal2-border-radius: 0 !default;
@@ -59,12 +62,9 @@ $--bs-btn-active-color: #071e33;
 }
 
 .search-container{
-  // width: 10rem;
   margin-top: 2rem; 
-  margin-right: 5rem; 
   width: 22rem;
   transition: all 300ms;
-  // animation: fadeIn 300ms ease-in-out;
 }
 
 [search-icon]{

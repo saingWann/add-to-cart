@@ -1,6 +1,7 @@
 @charset "UTF-8";
-@import url(../node_modules/bootstrap-icons/font/bootstrap-icons.min.css);
-@import url(../node_modules/animate.css/animate.min.css);
+@import "../node_modules/bootstrap-icons/font/bootstrap-icons.min.css";
+@import "../node_modules/animate.css/animate.min.css";
+@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 .swal2-popup.swal2-toast {
   box-sizing: border-box;
   grid-column: 1/4 !important;
@@ -12982,7 +12983,6 @@ textarea.form-control-lg {
 
 .search-container {
   margin-top: 2rem;
-  margin-right: 5rem;
   width: 22rem;
   transition: all 300ms;
 }
@@ -13158,5 +13158,3 @@ textarea.form-control-lg {
 [total-cost-info-container] {
   margin-bottom: 2rem;
 }
-
-/*# sourceMappingURL=newStyle.css.map */
